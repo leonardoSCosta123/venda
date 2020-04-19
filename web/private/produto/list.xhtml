@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <ui:composition template="/private/template/template.xhtml">
+        <ui:define name="conteudo">
+            <p:panel id="panel" header="Produtos" style="margin: 20px;" visible="#{!vendaMB.venda.finalizada}">
+                <div align="right">
+                    <h:form id="formCarrinho">
+                        <p:dataList value="#{vendaMB.listaItens}" var="itens" type="definition" emptyMessage="Nenhum registro encontrado" rows="10">
+                           <f:facet name="header">
+                               Carrinho
+                           </f:facet>
+                            #{itens.produto.nome}   |Qtd #{itens.quantidade}| Vr R$ #{itens.valor * itens.quantidade}0
+                       </p:dataList>
+                   </h:form>
+                </div>
+                <p:dataTable value="#{produtoMB.lista}" var="produto"
+                             emptyMessage="Nenhum registro encontrado" style="margin: 10px;"
+                             paginator="true" paginatorPosition="bottom" rows="10">
+                    <p:column headerText="Nome" sortBy="#{produto.nome}">
+                        #{produto.nome}
+                    </p:column>
+                     <p:column headerText="Valor" sortBy="#{produto.valor}">
+                        #{produto.valor}
+                    </p:column>
+                    <p:column headerText="Editar" width="80" style="text-align: center;">
+                        <p:commandButton action="#{produtoMB.editar(produto)}" icon="ui-icon-pencil" title="Editar"/>
+                    </p:column>
+                    <p:column headerText="Excluir"  width="80" style="text-align: center;">
+                        <p:commandButton id="excluir" action="#{produtoMB.excluir(produto,vendaMB.venda)}" icon="ui-icon-trash" title="Excluir"
+                                         onclick="if (!confirm('Confirma a exclusão?')) return false" update=":form:j_idt18:0:excluir"/>
+                    </p:column>
+                    <p:column headerText="Add produto"  width="80" style="text-align: center;">
+                        <p:commandButton id="add" action="#{vendaMB.add(produto)}" icon="ui-icon-cart" title="Add produto"
+                                         onclick="if (!confirm('Add produto ao carrinho ?')) return false"/>
+                    </p:column>
+                </p:dataTable>
+                <div align="center">
+                    <p:commandButton id="novo" value="Novo" update=":form:novo" action="#{produtoMB.novo()}"/>
+                    
+                </div>
+                <div align="right">
+                    <h:panelGrid columns="1" cellpadding="5">
+                        <p:commandButton value="Fechar compra" type="button" onclick="PF('finalizar').show();" />
+                    </h:panelGrid>
+                </div>
+                
+                <p:dialog header="Dados de pagamento" widgetVar="finalizar" minHeight="400" minWidth="300">
+                    <h:panelGrid columns="2" style="margin-bottom:10px" cellpadding="5">
+                        <h:form id="finalizar">
+                            <div class="ui-g-12">
+                                <label>Forma de pagamento</label><br/>
+                                <p:selectOneMenu id="formaPagamento" value="#{vendaMB.venda.formaPagamento}" style="width: 100%"
+                                                required="true" requiredMessage="Forma de pagamento é obrigatória">
+                                    <p:ajax event="change" update="@this" />
+                                   <f:selectItems value="#{vendaMB.formasPagamento}" var="forma"
+                                                  itemLabel="#{forma}" itemValue="#{forma}"/>
+                               </p:selectOneMenu>
+                            </div>
+                            <div class="ui-g-12">
+                                <h:outputText value="#{vendaMB.valorTotal}" />
+                            </div>
+                        </h:form>
+                        <div align="center">
+                            <p:commandButton action="#{vendaMB.finalizar()}" id="salvar" value="Salvar" style="margin-right: 10px;"/>
+                        </div>
+                    </h:panelGrid>
+                </p:dialog>
+            </p:panel>
+            
+            <p:panel id="panel2" header="Venda finalizada" style="margin: 20px;" visible="#{vendaMB.venda.finalizada}" >
+                <h:form>
+                    <h:panelGrid columns="2" cellpadding="10">
+                        <h:outputText value="Venda finalizada com sucesso." /><br/>
+                        <h:outputText value="Dados da compra abaixo" /><br/>
+                        <h:outputText value="Forma de pagamento : #{vendaMB.venda.formaPagamento}" /><br/>
+                        <h:outputText value="Valor total #{vendaMB.valorTotal}" /><br/>
+                        <p:dataList value="#{vendaMB.listaItens}" var="itens" type="definition" emptyMessage="Nenhum registro encontrado" rows="10">
+                           <f:facet name="header">
+                               Itens da compra
+                           </f:facet>
+                            #{itens.produto.nome}   |Qtd #{itens.quantidade}| Vr R$ #{itens.valor * itens.quantidade}0
+                       </p:dataList>
+                    </h:panelGrid>
+                </h:form>
+                <div align="center">
+                    <p:commandButton action="#{vendaMB.voltarCompras()}" id="compras" value="Comprar mais" style="margin-right: 10px;"/>
+                </div>
+            </p:panel>
+        </ui:define>
+        
+
+       
+        
+    </ui:composition>
+       
+</html>
+
